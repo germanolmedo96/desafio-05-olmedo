@@ -16,6 +16,10 @@ export default class Products {
         return product;
     }
 
+    async getProductById(id) {
+        return await productsModel.findById(id);
+      }
+
     saveProduct = async (product) => {
         let result = await productsModel.create(product);
         return result;

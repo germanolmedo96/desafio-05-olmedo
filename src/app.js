@@ -42,15 +42,6 @@ app.use(session({
     saveUninitialized:false
 }))
 
-initPassport();
-
-app.use(
-    passport.session({
-      secret: "secretCoder",
-    })
-  );
-  app.use(passport.initialize());
-
 app.use('/', viewRouter); //usamos la ruta de  viewRouter
 app.use('/api/products', productRouter);
 app.use('/api/carts', cartRouter);

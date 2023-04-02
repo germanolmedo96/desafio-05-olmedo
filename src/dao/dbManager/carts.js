@@ -16,6 +16,12 @@ export default class Carts {
         return cart;
     }
 
+    getById = async (cid) => {
+        const cart = await cartsModel.findOne({_id:cid}).populate("products.product");
+        // console.log(cart);
+        if(cart === null) {return cart} else {return cart.toObject()};
+    }
+
     saveCart = async () => {
         let result = await cartsModel.create({
             products: []
@@ -23,11 +29,35 @@ export default class Carts {
         return result;
     }
 
+    saveId = async (cid, pid) => {
+        const cart = await this.getById(cid);
+
+        if (!cart) return;
+
+        const productos = cart.products;
+        const indexProd = productos.findIndex(prod => prod.product._id == pid);
+
+        if(indexProd > -1){
+            const result = await cartsModel.updateOne({_id: {$eq: cid}, "products.product" : pid}, {$inc:{"products.$.quantity" : 1}});
+            return result;
+        } else{ 
+            const result = await cartsModel.updateOne({_id: {$eq: cid}}, {$push:{products:{product:pid, quantity:1}}});
+            return result;
+        }
+    }  
+
+
     deleteCart = async (id) => {
         let result = await cartsModel.findByIdAndDelete(id);
         return result;
     }
 
+    // addProductToCart(cid, pid) {
+    //     return cartsModel.findOneAndUpdate(
+    //       { _id: cid },
+    //       { $push: { products: { id: pid } } }
+    //     );
+    //   }
 
     addProductToCart = async (cid, pid) => {
         try {
@@ -61,6 +91,20 @@ export default class Carts {
 
 
     }
+
+    save = async(cart) => {
+        // const carts = await this.getAll();
+
+        // if(carts.length === 0){
+        //     cart.id = 1;
+        // } else{
+        //     cart.id =  carts[carts.length -1].id + 1;
+        // }
+
+        const result = await cartsModel.create({});
+        return result;
+    }
+
 
     updateCart = async(cid, cart) => {
         let result = await cartsModel.updateOne({_id: cid}, cart);

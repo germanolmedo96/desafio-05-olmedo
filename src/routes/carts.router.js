@@ -6,12 +6,12 @@ const router = Router();
 const cartsManager = new Carts();
 const productManager = new Products();
 
-router.get('/' , async (req,res) => {
+router.get('/' , async (req,res) => {  
     let carts = await cartsManager.getAll();
     res.send({status:"success" , payload:carts})
 })
 
-router.post('/' , async (req,res) => {
+router.post('/' , async (req,res) => {   //agregar un nuevo carrito
     const result = await cartsManager.saveCart();
     res.send({status:"success" , payload:result});
 })
@@ -21,13 +21,22 @@ router.post('/' , async (req,res) => {
 //     const result = await cartsManager.deleteCart(id);
 //     res.send({status:"success" , payload:result});
 // })
-
 router.post('/:cid/product/:pid' , async (req,res) => {
-    let cid = req.params.cid;
-    let pid = req.params.pid;
 
-    let result = await cartsManager.addProductToCart(cid,pid);
-    res.send({status:"success" , payload:result});
+    const { cid, pid } = req.params;
+    const product = await productManager.getProductById(pid);
+    if (product.id) {
+      const cart = await cartsManager.addProductToCart(cid, pid);
+      res.json(cart);
+      return;
+    }
+    res.json({ msg: `El producto con el id ${pid} no existe.` });
+
+    // let cid = req.params.cid;
+    // let pid = req.params.pid;
+
+    // let result = await cartsManager.addProductToCart(cid,pid);
+    // res.send({status:"success" , payload:result});
 })
 
 router.delete('/:cid/product/:pid', async (req, res) => {
